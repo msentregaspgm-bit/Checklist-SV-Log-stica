@@ -6,55 +6,41 @@
     <title>SV Gestão de Frota</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#005697">
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
     <style>
-        :root { --sv-blue: #005697; --sv-yellow: #FDB813; --sv-bg: #f4f6f9; --sv-text: #333; }
+        :root { --sv-blue: #005697; --sv-yellow: #FDB813; --sv-bg: #f4f6f9; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--sv-bg); margin: 0; padding-top: env(safe-area-inset-top); display: flex; justify-content: center; }
         
-        body { font-family: 'Segoe UI', sans-serif; background: var(--sv-bg); margin: 0; padding: 0; padding-top: env(safe-area-inset-top); display: flex; justify-content: center; overflow-x: hidden; }
-
-        /* SPLASH SCREEN */
         #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--sv-blue); display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.6s ease;
+            transition: opacity 0.5s ease;
         }
         #splash img { width: 160px; animation: pulse 2s infinite; }
-        #splash p { color: var(--sv-yellow); font-weight: bold; margin-top: 20px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
-        
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
+        #splash p { color: var(--sv-yellow); font-weight: bold; margin-top: 20px; font-size: 12px; letter-spacing: 2px; }
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
 
-        .app-card { width: 100%; max-width: 500px; min-height: 100vh; background: white; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; }
-        
+        .app-card { width: 100%; max-width: 500px; min-height: 100vh; background: white; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         .header { background: var(--sv-blue); color: var(--sv-yellow); padding: 20px; text-align: center; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; }
-        .header img { max-width: 130px; height: auto; display: block; margin: 0 auto 10px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
-        
-        .p-20 { padding: 25px 20px; flex: 1; }
+        .header img { max-width: 130px; display: block; margin: 0 auto 10px; }
+        .p-20 { padding: 20px; flex: 1; }
         .screen { display: none; }
         .active { display: block; }
         
         label { display: block; margin: 15px 0 5px; font-weight: 700; color: var(--sv-blue); font-size: 0.85rem; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 14px; border: 2px solid #e1e5eb; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 12px; background: #fdfdfd; }
-        
+        input, select, textarea { width: 100%; padding: 14px; border: 2px solid #e1e5eb; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 12px; }
         .btn-main { background: var(--sv-yellow); color: #1a1d20; width: 100%; padding: 18px; border: none; border-radius: 10px; font-weight: 800; font-size: 16px; text-transform: uppercase; cursor: pointer; margin-top: 15px; }
-        .btn-nav { background: #e1e5eb; color: var(--sv-blue); width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 13px; text-align: center; }
-        
-        /* Checklist */
+        .btn-nav { background: #e1e5eb; color: var(--sv-blue); width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 13px; }
         .category-block { background: #fff; border-radius: 10px; margin: 15px 0; border: 2px solid #e1e5eb; overflow: hidden; }
-        .category-title { background: #f1f3f6; font-weight: 800; color: #1a1d20; padding: 10px 15px; font-size: 12px; border-bottom: 2px solid #e1e5eb; }
+        .category-title { background: #f1f3f6; font-weight: 800; padding: 10px 15px; font-size: 12px; border-bottom: 2px solid #e1e5eb; }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #eee; }
-        .res-check { width: auto; min-width: 85px; padding: 5px; height: auto; border: 1px solid #ccc; margin: 0; }
+        .res-check { width: auto; min-width: 85px; padding: 5px; }
 
-        /* Dashboard */
+        /* Dashboard Styles */
         .dash-card { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .dash-title { font-size: 11px; color: #777; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--sv-blue); }
@@ -65,7 +51,7 @@
 
 <div id="splash">
     <img src="logo.png" alt="SV Logística">
-    <p>Sincronizando SV Frota...</p>
+    <p>SINCRONIZANDO SV FROTA...</p>
 </div>
 
 <div class="app-card">
@@ -77,109 +63,82 @@
     <div class="p-20">
         <div id="tela1" class="screen active">
             <label>Operador / Coordenador</label>
-            <input type="text" id="operador" placeholder="Seu nome completo">
-            
+            <input type="text" id="operador" placeholder="Seu nome">
             <label>Tipo da Máquina</label>
-            <select id="tipoMaquina" onchange="filtraIDs()">
-                <option value="">Selecione...</option>
-            </select>
-            
+            <select id="tipoMaquina" onchange="filtraIDs()"><option value="">Selecione...</option></select>
             <label>ID da Máquina</label>
-            <select id="idMaquina">
-                <option value="">Selecione o tipo primeiro...</option>
-            </select>
-            
+            <select id="idMaquina"><option value="">Aguardando tipo...</option></select>
             <button class="btn-main" onclick="irParaChecklist()">INICIAR INSPEÇÃO</button>
-            <button class="btn-nav" onclick="abrirDash()">DASHBOARD DE GESTÃO</button>
+            <button class="btn-nav" onclick="abrirDash()">DASHBOARD GESTOR</button>
         </div>
 
         <div id="tela2" class="screen">
             <div id="banner" style="background:#e1f0ff; padding:12px; border-radius:10px; margin-bottom:15px; font-size:13px; font-weight:bold; color:var(--sv-blue); text-align:center;"></div>
             <div id="checklistArea"></div>
-            
-            <label>Observações Gerais</label>
-            <textarea id="obs" rows="3" placeholder="Relate avarias aqui..."></textarea>
-            
+            <label>Observações</label>
+            <textarea id="obs" rows="3"></textarea>
             <button id="btnSalvar" class="btn-main" onclick="salvar()">FINALIZAR E ENVIAR</button>
-            <button class="btn-nav" onclick="location.reload()">CANCELAR E VOLTAR</button>
+            <button class="btn-nav" onclick="location.reload()">CANCELAR</button>
         </div>
 
         <div id="telaDash" class="screen">
-            <h3 style="color: var(--sv-blue); margin: 0 0 15px 0;">Resumo Operacional</h3>
-            
+            <h3 style="color: var(--sv-blue); margin-top: 0;">Dashboard Operacional</h3>
             <div class="filter-grid">
                 <div>
                     <label>Período</label>
                     <select id="fPeriodo" onchange="renderDash()">
-                        <option value="7">Últimos 7 dias</option>
-                        <option value="15">Últimos 15 dias</option>
-                        <option value="30" selected>Últimos 30 dias</option>
-                        <option value="0">Todo Histórico</option>
+                        <option value="7">7 dias</option><option value="15">15 dias</option><option value="30" selected>30 dias</option><option value="0">Tudo</option>
                     </select>
                 </div>
                 <div>
                     <label>Operador</label>
-                    <select id="fOperador" onchange="renderDash()">
-                        <option value="">Todos</option>
-                    </select>
+                    <select id="fOperador" onchange="renderDash()"><option value="">Todos</option></select>
                 </div>
             </div>
-
             <div class="dash-card">
-                <div class="dash-title">Checklists Enviados</div>
+                <div class="dash-title">Total de Checklists</div>
                 <div id="totalChecks" class="stat-number">0</div>
             </div>
-
             <div class="dash-card">
-                <div class="dash-title">Saúde da Frota (Geral)</div>
+                <div class="dash-title">Status Itens (OK x NOK)</div>
                 <canvas id="chartPizza" height="220"></canvas>
             </div>
-
             <div class="dash-card">
-                <div class="dash-title">Ranking de Falhas (Itens NOK)</div>
+                <div class="dash-title">Top 5 Falhas</div>
                 <canvas id="chartBarras" height="250"></canvas>
             </div>
-
-            <button class="btn-nav" onclick="location.reload()">SAIR DO DASHBOARD</button>
+            <button class="btn-nav" onclick="location.reload()">VOLTAR AO INÍCIO</button>
         </div>
     </div>
 </div>
 
 <script>
-    // ⚠️ COLOQUE SUA URL DO GOOGLE SCRIPT ABAIXO ENTRE AS ASPAS:
-    const URL_API = "https://script.google.com/macros/s/AKfycbw4kN_V5JVZjk6nvHnqwE_mE86SInwgCtoeCnWRS10k_KCVPUhY9lIKDOfMZBDA0vKp/exec"; 
+    // ⚠️ COLOQUE SUA URL AQUI:
+    const URL_API = "https://script.google.com/macros/s/AKfycbxhbiYNM_I1PpvV1D6mXfuXrrnSZpz2Rw3Kb0BGctvvrvve4NMe1pAlT2CpCzNs13Yx/exec"; 
 
     let dMaquinas = [], dItens = [], dHistorico = [], chartP, chartB;
-
-    // Registrar plugin de números nos gráficos
     Chart.register(ChartDataLabels);
 
     window.onload = async () => {
         try {
             const res = await fetch(URL_API);
             const data = await res.json();
-            
             dMaquinas = data.maquinas || [];
             dItens = data.itens || [];
             dHistorico = data.historico || [];
             
-            // Carregar Select de Tipos
             const selT = document.getElementById('tipoMaquina');
             const tipos = [...new Set(dMaquinas.map(m => m.tipo_maquina))];
             tipos.forEach(t => { if(t) selT.innerHTML += `<option value="${t}">${t}</option>`; });
             
-            // Carregar Select de Operadores no Dash
             const opSel = document.getElementById('fOperador');
-            const ops = [...new Set(dHistorico.map(h => h.operador))];
-            ops.forEach(op => { if(op) opSel.innerHTML += `<option value="${op}">${op}</option>`; });
+            [...new Set(dHistorico.map(h => h.operador))].forEach(op => { if(op) opSel.innerHTML += `<option value="${op}">${op}</option>`; });
 
-            // Remover Splash Screen
             const splash = document.getElementById('splash');
             splash.style.opacity = '0';
             setTimeout(() => { splash.style.display = 'none'; }, 600);
-
-        } catch (e) {
-            document.getElementById('splash').innerHTML = "<p style='color:white; padding:20px; text-align:center;'>ERRO DE CONEXÃO<br>Verifique a URL do Script ou sua internet.</p>";
+        } catch (e) { 
+            document.getElementById('splash').innerHTML = "<p style='color:white; padding:20px; text-align:center;'>Erro ao carregar dados. Verifique a URL do Script ou sua Internet.</p>";
         }
     };
 
@@ -193,6 +152,80 @@
     }
 
     function irParaChecklist() {
-        const op = document.getElementById('operador').value;
-        const id = document.getElementById('idMaquina').value;
-        const tipoOriginal = document.getElementById('tipoMaquina').
+        const op = document.getElementById('operador').value, id = document.getElementById('idMaquina').value, t = document.getElementById('tipoMaquina').value;
+        if(!op || !id) return alert("Preencha Operador e Máquina!");
+
+        // Busca de itens blindada contra espaços e maiúsculas
+        const tBusca = t.trim().toLowerCase();
+        const itensF = dItens.filter(i => i.tipo_maquina && i.tipo_maquina.toString().trim().toLowerCase() === tBusca);
+
+        if(itensF.length === 0) return alert("Nenhum item encontrado para: " + t + ". Verifique a aba Itens Checklist.");
+
+        const maq = dMaquinas.find(m => m.id_maquina === id);
+        document.getElementById('banner').innerText = `ID: ${id} | PLACA: ${maq.placa || 'N/A'}`;
+        const area = document.getElementById('checklistArea'); area.innerHTML = "";
+        const cats = [...new Set(itensF.map(i => i.categoria))];
+        cats.forEach(c => {
+            let h = `<div class="category-block"><div class="category-title">${c}</div>`;
+            itensF.filter(i => i.categoria === c).forEach(it => {
+                h += `<div class="item-row"><span>${it.item}</span><select class="res-check" data-name="${it.item}"><option value="OK">OK</option><option value="NOK">NOK</option></select></div>`;
+            });
+            area.innerHTML += h + `</div>`;
+        });
+        document.getElementById('tela1').classList.remove('active'); document.getElementById('tela2').classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    async function salvar() {
+        const btn = document.getElementById('btnSalvar'); if(btn.disabled) return;
+        btn.disabled = true; btn.innerText = "ENVIANDO...";
+        const resps = Array.from(document.querySelectorAll('.res-check')).map(s => { return { item: s.dataset.name, status: s.value }; });
+        const payload = {
+            operador: document.getElementById('operador').value,
+            tipoMaquina: document.getElementById('tipoMaquina').value,
+            idMaquina: document.getElementById('idMaquina').value,
+            placa: dMaquinas.find(m => m.id_maquina === document.getElementById('idMaquina').value).placa,
+            respostas: resps, observacao: document.getElementById('obs').value
+        };
+        try {
+            await fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("✅ Checklist Salvo!"); location.reload();
+        } catch (e) { alert("Erro ao salvar."); btn.disabled = false; }
+    }
+
+    function abrirDash() {
+        document.getElementById('tela1').classList.remove('active');
+        document.getElementById('telaDash').classList.add('active');
+        renderDash();
+    }
+
+    function renderDash() {
+        const per = parseInt(document.getElementById('fPeriodo').value), opF = document.getElementById('fOperador').value, hoje = new Date();
+        let filtrados = dHistorico.filter(d => {
+            const diff = (hoje - new Date(d.data)) / (1000*60*60*24);
+            return (per === 0 || diff <= per) && (opF === "" || d.operador === opF);
+        });
+        const totalUnico = new Set(filtrados.map(f => f.data + f.id_maquina)).size;
+        document.getElementById('totalChecks').innerText = totalUnico;
+        let ok = 0, nok = 0, ranking = {};
+        filtrados.forEach(f => {
+            if(f.status === "OK") ok++; else { nok++; ranking[f.item] = (ranking[f.item] || 0) + 1; }
+        });
+        const labelCfg = { color: '#fff', font: { weight: 'bold' }, formatter: (v) => v > 0 ? v : '' };
+        if(chartP) chartP.destroy();
+        chartP = new Chart(document.getElementById('chartPizza'), {
+            type: 'pie',
+            data: { labels: ['OK', 'NOK'], datasets: [{ data: [ok, nok], backgroundColor: ['#28a745', '#d32f2f'] }] },
+            options: { plugins: { legend: { position: 'bottom' }, datalabels: labelCfg } }
+        });
+        const sorted = Object.entries(ranking).sort((a,b) => b[1] - a[1]).slice(0, 5);
+        if(chartB) chartB.destroy();
+        chartB = new Chart(document.getElementById('chartBarras'), {
+            type: 'bar',
+            data: { labels: sorted.map(i => i[0]), datasets: [{ label: 'Falhas', data: sorted.map(i => i[1]), backgroundColor: '#005697' }] },
+            options: { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { ...labelCfg, anchor: 'end', align: 'start' } } }
+        });
+    }
+</script>
+</body>
+</html>
