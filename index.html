@@ -61,7 +61,7 @@
 </div>
 <script>
     // ⚠️ ATUALIZE SUA URL ABAIXO:
-    const URL_API = "https://script.google.com/macros/s/AKfycbxET9AKbWfotX9BAi2VE59MRcRP9DfjUedFCEdvNofolZmA8_fR-VFkotHR7MFPrX5P/exec"; 
+    const URL_API = "https://script.google.com/macros/s/AKfycbzQqigXWJ1Ojs48NmaDx8DCKDSABrMh-zH09dj_a_GrUcPpqo6Qr1bTw6brdljMb2Zy/exec"; 
 
     let dMaquinas = [];
     let dItens = [];
@@ -119,26 +119,43 @@
     }
 
     async function salvar() {
-        const btn = document.getElementById('btnSalvar');
-        btn.disabled = true; btn.innerText = "ENVIANDO...";
-        const resps = Array.from(document.querySelectorAll('.res-check'))
-            .map(s => { return { item: s.dataset.name, status: s.value }; });
-        const payload = {
-            operador: document.getElementById('operador').value,
-            tipoMaquina: document.getElementById('tipoMaquina').value,
-            idMaquina: document.getElementById('idMaquina').value,
-            placa: dMaquinas.find(m => m.id_maquina === document.getElementById('idMaquina').value).placa,
-            respostas: resps,
-            observacao: document.getElementById('obs').value
-        };
-        try {
-            await fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("✅ Checklist SV Salvo com sucesso!");
+    const btn = document.getElementById('btnSalvar');
+    if(btn.disabled) return; // Evita cliques duplos
+
+    btn.disabled = true; 
+    btn.innerText = "ENVIANDO DADOS...";
+    btn.style.backgroundColor = "#ccc"; // Muda a cor para mostrar que travou
+
+    const resps = Array.from(document.querySelectorAll('.res-check'))
+        .map(s => { return { item: s.dataset.name, status: s.value }; });
+
+    const payload = {
+        operador: document.getElementById('operador').value,
+        tipoMaquina: document.getElementById('tipoMaquina').value,
+        idMaquina: document.getElementById('idMaquina').value,
+        placa: dMaquinas.find(m => m.id_maquina === document.getElementById('idMaquina').value).placa,
+        respostas: resps,
+        observacao: document.getElementById('obs').value
+    };
+
+    try {
+        // Usamos uma técnica para não esperar a resposta do Google (que é o que demora)
+        // se o seu objetivo for apenas disparar e fechar.
+        fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        
+        // Simula um delay curto para o usuário sentir que enviou
+        setTimeout(() => {
+            alert("✅ Checklist SV Enviado!");
             location.reload();
-        } catch (err) {
-            alert("Erro ao salvar.");
-            btn.disabled = false;
-        }
+        }, 800);
+        
+    } catch (err) {
+        alert("Erro ao salvar.");
+        btn.disabled = false;
+        btn.innerText = "FINALIZAR E ENVIAR";
+        btn.style.backgroundColor = ""; 
+    }
+        
     }
 </script>
 </body>
