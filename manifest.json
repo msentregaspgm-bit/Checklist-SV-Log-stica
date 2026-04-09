@@ -1,0 +1,23 @@
+{
+  "short_name": "SV Checklist",
+  "name": "SV Logística - Checklist de Frota",
+  "description": "Aplicativo de Checklist Interno SV Logística",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#005697",
+  "background_color": "#f4f6f9"
+}
