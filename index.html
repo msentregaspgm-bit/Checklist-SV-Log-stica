@@ -3,73 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist SV Logística</title>
+    <title>SV Logística - Checklist</title>
     <style>
-        :root { --primary: #28a745; --dark: #1a1d20; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
-        .app { max-width: 500px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: var(--dark); color: white; padding: 15px; text-align: center; }
+        :root { --primary: #28a745; --dark: #1a1d20; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .app-card { width: 100%; max-width: 450px; background: white; border-radius: 15px; shadow: 0 4px 20px rgba(0,0,0,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: var(--dark); color: white; padding: 20px; text-align: center; font-weight: bold; letter-spacing: 1px; }
         .p-20 { padding: 20px; }
         .screen { display: none; }
         .active { display: block; }
-        label { display: block; margin: 10px 0 5px; font-weight: bold; font-size: 14px; }
-        select, input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; }
-        .category-block { background: #f8f9fa; border-left: 4px solid var(--primary); padding: 10px; margin: 15px 0; border-radius: 4px; }
-        .category-title { font-weight: bold; color: #333; margin-bottom: 10px; text-transform: uppercase; font-size: 12px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+        label { display: block; margin: 15px 0 5px; font-weight: 600; color: #444; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .category-block { background: #fdfdfd; border: 1px solid #eee; border-left: 5px solid var(--primary); padding: 15px; margin: 20px 0; border-radius: 6px; }
+        .category-title { font-weight: bold; color: #222; margin-bottom: 12px; text-transform: uppercase; font-size: 13px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dotted #ddd; }
         .item-row:last-child { border-bottom: none; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-main { background: var(--primary); color: white; margin-top: 10px; }
+        button { width: 100%; padding: 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .btn-main { background: var(--primary); color: white; margin-top: 15px; }
+        .btn-main:active { transform: scale(0.98); }
         .btn-back { background: #6c757d; color: white; margin-top: 10px; }
+        .loading-overlay { text-align: center; padding: 20px; color: #666; }
     </style>
 </head>
 <body>
 
-<div class="app">
-    <div class="header"><h1>SV LOGÍSTICA</h1></div>
+<div class="app-card">
+    <div class="header">SV LOGÍSTICA - FROTA</div>
     
     <div class="p-20">
         <div id="tela1" class="screen active">
-            <label>Operador</label>
-            <input type="text" id="operador" placeholder="Seu nome">
-            
-            <label>Tipo da Máquina</label>
-            <select id="tipoMaquina" onchange="filtraIDs()"><option value="">Carregando...</option></select>
-            
-            <label>ID da Máquina</label>
-            <select id="idMaquina"><option value="">Selecione o tipo...</option></select>
-            
-            <button class="btn-main" onclick="gerarChecklist()">INICIAR CHECKLIST</button>
+            <div id="loadingMsg" class="loading-overlay">Conectando à planilha...</div>
+            <div id="formInicial" style="display:none;">
+                <label>Nome do Operador</label>
+                <input type="text" id="operador" placeholder="Quem está fazendo o checklist?">
+                
+                <label>Tipo da Máquina</label>
+                <select id="tipoMaquina" onchange="filtraIDs()">
+                    <option value="">Selecione o Tipo...</option>
+                </select>
+                
+                <label>ID da Máquina</label>
+                <select id="idMaquina">
+                    <option value="">Selecione o tipo primeiro...</option>
+                </select>
+                
+                <button class="btn-main" onclick="gerarChecklist()">PRÓXIMO: CHECKLIST</button>
+            </div>
         </div>
 
         <div id="tela2" class="screen">
-            <div id="infoBanner" style="font-size: 12px; color: #666; margin-bottom: 15px;"></div>
+            <div id="infoBanner" style="background: #e7f3ff; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: bold; color: #0056b3; margin-bottom: 15px; text-align: center;"></div>
             <div id="checklistArea"></div>
             
             <label>Observações Gerais</label>
-            <textarea id="observacao" rows="3"></textarea>
+            <textarea id="observacao" rows="3" placeholder="Relate avarias ou problemas encontrados..."></textarea>
             
-            <button id="btnEnviar" class="btn-main" onclick="enviarDados()">SALVAR CHECKLIST</button>
+            <button id="btnEnviar" class="btn-main" onclick="enviarDados()">SALVAR NA PLANILHA</button>
             <button class="btn-back" onclick="location.reload()">VOLTAR</button>
         </div>
     </div>
 </div>
 
 <script>
+    // ⚠️ COLOQUE SUA URL ABAIXO ENTRE AS ASPAS:
     const URL_API = "https://script.google.com/macros/s/AKfycbzAQaRcltLEa274Da3gN0tX3tI2WWWQ46mJdXtFJ2brk_GGqvuStr_7eXmfTI5g-l-o/exec"; 
+
     let dMaquinas = [];
     let dItens = [];
 
+    // Carregar dados ao abrir
     window.onload = async () => {
-        const res = await fetch(URL_API);
-        const data = await res.json();
-        dMaquinas = data.maquinas;
-        dItens = data.itens;
+        try {
+            const res = await fetch(URL_API);
+            const data = await res.json();
+            dMaquinas = data.maquinas;
+            dItens = data.itens;
 
-        const tipos = [...new Set(dMaquinas.map(m => m["Tipo Máquina"]))];
-        const selTipo = document.getElementById('tipoMaquina');
-        selTipo.innerHTML = '<option value="">Selecione o Tipo...</option>';
-        tipos.forEach(t => selTipo.innerHTML += `<option value="${t}">${t}</option>`);
+            const tipos = [...new Set(dMaquinas.map(m => m["Tipo Máquina"]))];
+            const selTipo = document.getElementById('tipoMaquina');
+            
+            tipos.forEach(t => {
+                if(t) selTipo.innerHTML += `<option value="${t}">${t}</option>`;
+            });
+
+            document.getElementById('loadingMsg').style.display = 'none';
+            document.getElementById('formInicial').style.display = 'block';
+        } catch (err) {
+            document.getElementById('loadingMsg').innerText = "Erro ao carregar dados. Verifique a URL do Script.";
+            console.error(err);
+        }
     };
 
     function filtraIDs() {
@@ -84,17 +106,21 @@
         const op = document.getElementById('operador').value;
         const id = document.getElementById('idMaquina').value;
         const tipo = document.getElementById('tipoMaquina').value;
-        if(!op || !id) return alert("Preencha Operador e ID!");
+        
+        if(!op || !id) return alert("Por favor, preencha o Operador e escolha a Máquina!");
 
         const maq = dMaquinas.find(m => m["ID Máquina"] === id);
-        document.getElementById('infoBanner').innerText = `TIPO: ${tipo} | ID: ${id} | PLACA: ${maq.Placa}`;
+        document.getElementById('infoBanner').innerText = `ID: ${id} | PLACA: ${maq.Placa || '---'}`;
 
         const area = document.getElementById('checklistArea');
         area.innerHTML = "";
         
-        // Filtra itens do tipo escolhido e agrupa por Categoria
         const itensFiltrados = dItens.filter(i => i["Tipo Máquina"] === tipo);
         const categorias = [...new Set(itensFiltrados.map(i => i.Categoria))];
+
+        if(categorias.length === 0) {
+            area.innerHTML = "<p style='color:red'>Nenhum item encontrado para este tipo de máquina na aba 'Itens Checklist'.</p>";
+        }
 
         categorias.forEach(cat => {
             let html = `<div class="category-block"><div class="category-title">${cat}</div>`;
@@ -102,7 +128,7 @@
                 html += `
                 <div class="item-row">
                     <span>${item.Item}</span>
-                    <select class="res-item" data-name="${item.Item}" style="width: 80px; margin:0;">
+                    <select class="res-item" data-name="${item.Item}" style="width: 85px; padding: 5px; margin:0;">
                         <option value="OK">OK</option>
                         <option value="NOK">NOK</option>
                     </select>
@@ -114,11 +140,13 @@
 
         document.getElementById('tela1').classList.remove('active');
         document.getElementById('tela2').classList.add('active');
+        window.scrollTo(0,0);
     }
 
     async function enviarDados() {
         const btn = document.getElementById('btnEnviar');
-        btn.disabled = true; btn.innerText = "ENVIANDO...";
+        btn.disabled = true; 
+        btn.innerText = "SALVANDO AGUARDE...";
 
         const respostas = Array.from(document.querySelectorAll('.res-item'))
             .map(s => `${s.dataset.name}: ${s.value}`).join(" | ");
@@ -132,9 +160,15 @@
             observacao: document.getElementById('observacao').value
         };
 
-        await fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        alert("Checklist Salvo!");
-        location.reload();
+        try {
+            await fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("✅ Checklist salvo com sucesso na planilha!");
+            location.reload();
+        } catch (err) {
+            alert("❌ Erro ao salvar. Verifique a conexão.");
+            btn.disabled = false;
+            btn.innerText = "SALVAR NA PLANILHA";
+        }
     }
 </script>
 </body>
