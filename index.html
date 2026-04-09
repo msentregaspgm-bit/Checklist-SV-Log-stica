@@ -24,11 +24,11 @@
         .res-check { width: auto; min-width: 85px; padding: 5px; height: auto; border: 1px solid #ccc; margin: 0; }
         .loading { text-align: center; padding: 40px; color: var(--sv-blue); font-weight: 600; }
         
-        /* Dashboard Styles */
+        /* Dash Styles */
         .dash-card { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .dash-title { font-size: 11px; color: #777; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; }
         .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--sv-blue); }
-        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; font-size: 12px; }
+        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -39,7 +39,7 @@
     </div>
     <div class="p-20">
         <div id="tela1" class="screen active">
-            <div id="statusLoad" class="loading">Iniciando sistema...</div>
+            <div id="statusLoad" class="loading">Sincronizando...</div>
             <div id="formInicial" style="display:none;">
                 <label>Operador</label>
                 <input type="text" id="operador" placeholder="Nome completo">
@@ -48,7 +48,7 @@
                 <label>ID da Máquina</label>
                 <select id="idMaquina"><option value="">Selecione o tipo primeiro...</option></select>
                 <button class="btn-main" onclick="irParaChecklist()">INICIAR INSPEÇÃO</button>
-                <button class="btn-nav" onclick="abrirDash()">VER DASHBOARD</button>
+                <button class="btn-nav" onclick="abrirDash()">ACESSAR DASHBOARD</button>
             </div>
         </div>
 
@@ -62,34 +62,37 @@
         </div>
 
         <div id="telaDash" class="screen">
-            <h3 style="color: var(--sv-blue); margin-top: 0;">DASHBOARD GESTÃO</h3>
-            <div class="filter-grid">
-                <div><label>Início</label><input type="date" id="fDataInicio" onchange="renderDash()"></div>
-                <div><label>Fim</label><input type="date" id="fDataFim" onchange="renderDash()"></div>
-            </div>
+            <h3 style="color: var(--sv-blue); margin-top: 0;">Dashboard de Gestão</h3>
+            
             <div class="filter-grid">
                 <div><label>Operador</label><select id="fOperador" onchange="renderDash()"><option value="">Todos</option></select></div>
                 <div><label>Caminhão</label><select id="fCaminhao" onchange="renderDash()"><option value="">Todos</option></select></div>
             </div>
+
             <div class="dash-card">
-                <div class="dash-title">Total de Inspeções</div>
+                <div class="dash-title">Total de Checklists</div>
                 <div id="totalChecks" class="stat-number">0</div>
             </div>
+
             <div class="dash-card">
-                <div class="dash-title">Status dos Itens (OK x NOK)</div>
+                <div class="dash-title">Status Geral (OK x NOK)</div>
                 <canvas id="chartPizza" height="200"></canvas>
             </div>
+
             <div class="dash-card">
-                <div class="dash-title">Ranking de Falhas</div>
+                <div class="dash-title">Ranking de Problemas</div>
                 <canvas id="chartBarras" height="250"></canvas>
             </div>
+
             <button class="btn-nav" onclick="location.reload()">SAIR DO DASHBOARD</button>
         </div>
     </div>
 </div>
 
 <script>
+    // ⚠️ ATUALIZE SUA URL AQUI
     const URL_API = "https://script.google.com/macros/s/AKfycby1TA5qgRDu7NAbgaSnIcK56lhZAVwVl9oELrc-WtBMZGzfOngA-emYxhWTnfMBdBO9/exec"; 
+
     let dMaquinas = [], dItens = [], dHistorico = [], chartP, chartB;
 
     window.onload = async () => {
@@ -98,21 +101,15 @@
             const data = await res.json();
             dMaquinas = data.maquinas; dItens = data.itens; dHistorico = data.historico || [];
             
-            // Popula Tipos de Máquina
             const selTipo = document.getElementById('tipoMaquina');
             const tipos = [...new Set(dMaquinas.map(m => m.tipo_maquina))];
             tipos.forEach(t => { if(t) selTipo.innerHTML += `<option value="${t}">${t}</option>`; });
             
-            // Popula Filtros do Dash
+            // Popula Filtros Dash
             const opSel = document.getElementById('fOperador');
             const maqSel = document.getElementById('fCaminhao');
             [...new Set(dHistorico.map(h => h.operador))].forEach(op => { if(op) opSel.innerHTML += `<option value="${op}">${op}</option>`; });
             [...new Set(dMaquinas.map(m => m.id_maquina))].forEach(id => { if(id) maqSel.innerHTML += `<option value="${id}">${id}</option>`; });
-
-            // Datas padrão do Dash
-            const dF = new Date(); const dI = new Date(); dI.setDate(dF.getDate() - 30);
-            document.getElementById('fDataInicio').value = dI.toISOString().split('T')[0];
-            document.getElementById('fDataFim').value = dF.toISOString().split('T')[0];
 
             document.getElementById('statusLoad').style.display = 'none';
             document.getElementById('formInicial').style.display = 'block';
@@ -171,35 +168,47 @@
     }
 
     function renderDash() {
-        const dataI = new Date(document.getElementById('fDataInicio').value);
-        const dataF = new Date(document.getElementById('fDataFim').value); dataF.setHours(23, 59, 59);
-        const opF = document.getElementById('fOperador').value, maqF = document.getElementById('fCaminhao').value;
+        const opF = document.getElementById('fOperador').value;
+        const maqF = document.getElementById('fCaminhao').value;
 
+        // Filtro simples
         let filtrados = dHistorico.filter(d => {
-            const dt = new Date(d.data);
-            return dt >= dataI && dt <= dataF && (opF === "" || d.operador === opF) && (maqF === "" || d.id_maquina == maqF);
+            return (opF === "" || d.operador === opF) && (maqF === "" || d.id_maquina == maqF);
         });
 
-        document.getElementById('totalChecks').innerText = new Set(filtrados.map(f => f.data + f.id_maquina)).size;
+        // Contagem de checklists (Únicos por data e ID)
+        const unico = new Set(filtrados.map(f => f.data + f.id_maquina)).size;
+        document.getElementById('totalChecks').innerText = unico;
 
-        let ok = 0, nok = 0, countItens = {};
+        let ok = 0, nok = 0, ranking = {};
         filtrados.forEach(f => {
-            if(f.status === "OK") ok++; else { nok++; countItens[f.item] = (countItens[f.item] || 0) + 1; }
+            if(f.status === "OK") ok++;
+            else { 
+                nok++; 
+                ranking[f.item] = (ranking[f.item] || 0) + 1;
+            }
         });
 
+        // Gráfico Pizza
         if(chartP) chartP.destroy();
-        chartP = new Chart(document.getElementById('chartPizza'), {
+        const ctxP = document.getElementById('chartPizza').getContext('2d');
+        chartP = new Chart(ctxP, {
             type: 'doughnut',
-            data: { labels: ['OK', 'Falha'], datasets: [{ data: [ok, nok], backgroundColor: ['#28a745', '#d32f2f'] }] },
-            options: { plugins: { legend: { position: 'bottom' } } }
+            data: { labels: ['OK', 'NOK'], datasets: [{ data: [ok, nok], backgroundColor: ['#28a745', '#d32f2f'] }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
 
-        const sortedItens = Object.entries(countItens).sort((a,b) => b[1] - a[1]).slice(0, 5);
+        // Gráfico Barras
+        const sorted = Object.entries(ranking).sort((a,b) => b[1] - a[1]).slice(0, 5);
         if(chartB) chartB.destroy();
-        chartB = new Chart(document.getElementById('chartBarras'), {
+        const ctxB = document.getElementById('chartBarras').getContext('2d');
+        chartB = new Chart(ctxB, {
             type: 'bar',
-            data: { labels: sortedItens.map(i => i[0]), datasets: [{ label: 'Qtd NOK', data: sortedItens.map(i => i[1]), backgroundColor: '#005697' }] },
-            options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+            data: { 
+                labels: sorted.map(i => i[0]), 
+                datasets: [{ label: 'Qtd Falhas', data: sorted.map(i => i[1]), backgroundColor: '#005697' }] 
+            },
+            options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
         });
     }
 </script>
