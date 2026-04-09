@@ -200,18 +200,40 @@
     }
 
     async function salvar() {
-        const btn = document.getElementById('btnSalvar');
-        btn.disabled = true; btn.innerText = "ENVIANDO...";
-        const resps = Array.from(document.querySelectorAll('.res-check'))
-            .map(s => `${s.dataset.name}: ${s.value}`).join(" | ");
-        const payload = {
-            operador: document.getElementById('operador').value,
-            tipoMaquina: document.getElementById('tipoMaquina').value,
-            idMaquina: document.getElementById('idMaquina').value,
-            placa: dadosMaquinas.find(m => m.id_maquina === document.getElementById('idMaquina').value).placa,
-            respostas: resps,
-            observacao: document.getElementById('obs').value
+    const btn = document.getElementById('btnSalvar');
+    btn.disabled = true; btn.innerText = "SALVANDO ITENS...";
+
+    // Criamos uma lista de objetos para cada item
+    const listaRespostas = Array.from(document.querySelectorAll('.res-check')).map(s => {
+        return {
+            item: s.dataset.name,
+            status: s.value
         };
+    });
+
+    const payload = {
+        operador: document.getElementById('operador').value,
+        tipoMaquina: document.getElementById('tipoMaquina').value,
+        idMaquina: document.getElementById('idMaquina').value,
+        placa: dadosMaquinas.find(m => m.id_maquina === document.getElementById('idMaquina').value).placa,
+        respostas: listaRespostas, // Enviando a lista completa
+        observacao: document.getElementById('obs').value
+    };
+
+    try {
+        await fetch(URL_API, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: JSON.stringify(payload) 
+        });
+        alert("✅ Todos os itens foram registrados com sucesso!");
+        location.reload();
+    } catch (err) {
+        alert("Erro ao salvar.");
+        btn.disabled = false;
+        btn.innerText = "FINALIZAR E ENVIAR";
+    }
+}
         try {
             await fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             alert("✅ Checklist SV Salvo!");
