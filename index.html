@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist SV Logística</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-green-700 text-center mb-6">Checklist de Frota</h1>
+        
+        <form id="formChecklist" class="space-y-4">
+            <input type="text" id="operador" placeholder="Nome do Operador" required class="w-full p-2 border rounded">
+            
+            <select id="maquina" required class="w-full p-2 border rounded" onchange="atualizarPlaca()">
+                <option value="">Selecione o Veículo</option>
+            </select>
+            
+            <input type="text" id="placa" placeholder="Placa" readonly class="w-full p-2 bg-gray-50 border rounded text-gray-500">
+
+            <div class="border-t pt-4">
+                <p class="font-semibold mb-2">Item de Inspeção:</p>
+                <input type="text" id="item" value="Freios e Suspensão" readonly class="w-full p-2 mb-2 bg-gray-50 border rounded">
+                <select id="status" class="w-full p-2 border rounded">
+                    <option value="OK">OK</option>
+                    <option value="Não Conforme">Não Conforme (NOK)</option>
+                </select>
+            </div>
+
+            <textarea id="observacao" placeholder="Observações adicionais..." class="w-full p-2 border rounded h-20"></textarea>
+
+            <button type="submit" id="btnEnviar" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700">
+                Finalizar e Salvar
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const API_URL = "URL_DO_SEU_SCRIPT";
+        let dadosMaquinas = [];
+
+        // Carrega máquinas da planilha
+        async function carregarMaquinas() {
+            const res = await fetch(API_URL);
+            dadosMaquinas = await res.json();
+            const select = document.getElementById('maquina');
+            dadosMaquinas.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.Nome_da_Máquina; // Baseado no seu cabeçalho "Nome da Máquina" 
+                opt.textContent = m.Nome_da_Máquina;
+                select.appendChild(opt);
+            });
+        }
+
+        function atualizarPlaca() {
+            const nome = document.getElementById('maquina').value;
+            const maq = dadosMaquinas.find(m => m.Nome_da_Máquina === nome);
+            document.getElementById('placa').value = maq ? maq.Placa : "";
+        }
+
+        document.getElementById('formChecklist').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnEnviar');
+            btn.disabled = true;
+            btn.textContent = "Enviando...";
+
+            const payload = {
+                operador: document.getElementById('operador').value,
+                maquina: document.getElementById('maquina').value,
+                placa: document.getElementById('placa').value,
+                item: document.getElementById('item').value,
+                status: document.getElementById('status').value,
+                observacao: document.getElementById('observacao').value,
+                tipo: "Retirada",
+                assinatura: "Assinado Digitalmente"
+            };
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(payload)
+                });
+                alert("Checklist enviado com sucesso!");
+                location.reload();
+            } catch (err) {
+                alert("Erro na conexão.");
+                btn.disabled = false;
+            }
+        });
+
+        carregarMaquinas();
+    </script>
+</body>
+</html>
