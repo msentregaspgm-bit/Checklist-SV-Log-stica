@@ -3,53 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SV Logística - Frota</title>
+    <title>SV Logística - Gestão</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#005697">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
     <style>
         :root { --sv-blue: #005697; --sv-yellow: #FDB813; --sv-bg: #f4f6f9; --sv-text: #333; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--sv-bg); margin: 0; padding: 0; padding-top: env(safe-area-inset-top); display: flex; justify-content: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--sv-bg); margin: 0; padding: 0; padding-top: env(safe-area-inset-top); display: flex; justify-content: center; overflow-x: hidden; }
+        
+        /* ANIMAÇÃO SPLASH SCREEN */
+        #splash {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--sv-blue); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+            transition: opacity 0.6s ease, visibility 0.6s;
+        }
+        #splash img { width: 180px; animation: pulse 2s infinite; }
+        #splash p { color: var(--sv-yellow); font-weight: bold; margin-top: 20px; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
         .app-card { width: 100%; max-width: 500px; min-height: 100vh; background: white; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         .header { background: var(--sv-blue); color: var(--sv-yellow); padding: 20px; text-align: center; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; }
         .header img { max-width: 140px; height: auto; display: block; margin: 0 auto 10px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
         .p-20 { padding: 25px 20px; flex: 1; }
         .screen { display: none; }
         .active { display: block; }
+        
         label { display: block; margin: 15px 0 5px; font-weight: 700; color: var(--sv-blue); font-size: 0.85rem; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 14px; border: 2px solid #e1e5eb; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 12px; background: #fdfdfd; }
+        input, select, textarea { width: 100%; padding: 14px; border: 2px solid #e1e5eb; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 12px; }
         .btn-main { background: var(--sv-yellow); color: #1a1d20; width: 100%; padding: 18px; border: none; border-radius: 10px; font-weight: 800; font-size: 16px; text-transform: uppercase; cursor: pointer; margin-top: 15px; }
         .btn-nav { background: #e1e5eb; color: var(--sv-blue); width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 13px; }
-        .category-block { background: #fff; border-radius: 10px; margin: 15px 0; border: 2px solid #e1e5eb; overflow: hidden; }
-        .category-title { background: #f1f3f6; font-weight: 800; color: #1a1d20; padding: 10px 15px; font-size: 12px; border-bottom: 2px solid #e1e5eb; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #eee; }
-        .res-check { width: auto; min-width: 85px; padding: 5px; height: auto; border: 1px solid #ccc; margin: 0; }
-        .loading { text-align: center; padding: 40px; color: var(--sv-blue); font-weight: 600; }
         
-        /* Dash Styles */
+        /* Estilos Checklist */
+        .category-block { background: #fff; border-radius: 10px; margin: 15px 0; border: 2px solid #e1e5eb; overflow: hidden; }
+        .category-title { background: #f1f3f6; font-weight: 800; padding: 10px 15px; font-size: 12px; border-bottom: 2px solid #e1e5eb; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #eee; }
+        .res-check { width: auto; min-width: 85px; padding: 5px; }
+
+        /* Dashboard Styles */
         .dash-card { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
-        .dash-title { font-size: 11px; color: #777; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; }
+        .dash-title { font-size: 11px; color: #777; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--sv-blue); }
-        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; font-size: 12px; }
     </style>
 </head>
 <body>
+
+<div id="splash">
+    <img src="logo.png" alt="SV Logística">
+    <p>Carregando SV Frota...</p>
+</div>
+
 <div class="app-card">
     <div class="header">
         <img src="logo.png" alt="SV Logística">
-        CHECKLIST DE FROTA
+        SISTEMA DE GESTÃO SV
     </div>
+
     <div class="p-20">
         <div id="tela1" class="screen active">
-            <div id="statusLoad" class="loading">Sincronizando...</div>
-            <div id="formInicial" style="display:none;">
-                <label>Operador</label>
-                <input type="text" id="operador" placeholder="Nome completo">
-                <label>Tipo da Máquina</label>
-                <select id="tipoMaquina" onchange="filtraIDs()"><option value="">Selecione...</option></select>
-                <label>ID da Máquina</label>
-                <select id="idMaquina"><option value="">Selecione o tipo primeiro...</option></select>
-                <button class="btn-main" onclick="irParaChecklist()">INICIAR INSPEÇÃO</button>
-                <button class="btn-nav" onclick="abrirDash()">ACESSAR DASHBOARD</button>
-            </div>
+            <label>Operador / Coordenador</label>
+            <input type="text" id="operador" placeholder="Seu nome">
+            <label>Tipo da Máquina</label>
+            <select id="tipoMaquina" onchange="filtraIDs()"><option value="">Selecione...</option></select>
+            <label>ID da Máquina</label>
+            <select id="idMaquina"><option value="">Aguardando tipo...</option></select>
+            <button class="btn-main" onclick="irParaChecklist()">INICIAR INSPEÇÃO</button>
+            <button class="btn-nav" onclick="abrirDash()">DASHBOARD GESTOR</button>
         </div>
 
         <div id="tela2" class="screen">
@@ -58,42 +86,49 @@
             <label>Observações</label>
             <textarea id="obs" rows="3"></textarea>
             <button id="btnSalvar" class="btn-main" onclick="salvar()">FINALIZAR E ENVIAR</button>
-            <button class="btn-nav" onclick="location.reload()">VOLTAR</button>
+            <button class="btn-nav" onclick="location.reload()">CANCELAR</button>
         </div>
 
         <div id="telaDash" class="screen">
-            <h3 style="color: var(--sv-blue); margin-top: 0;">Dashboard de Gestão</h3>
-            
+            <h3 style="color: var(--sv-blue); margin: 0 0 15px 0;">Dashboard Operacional</h3>
             <div class="filter-grid">
-                <div><label>Operador</label><select id="fOperador" onchange="renderDash()"><option value="">Todos</option></select></div>
-                <div><label>Caminhão</label><select id="fCaminhao" onchange="renderDash()"><option value="">Todos</option></select></div>
+                <div>
+                    <label>Período</label>
+                    <select id="fPeriodo" onchange="renderDash()">
+                        <option value="7">Últimos 7 dias</option>
+                        <option value="15">Últimos 15 dias</option>
+                        <option value="30" selected>Últimos 30 dias</option>
+                        <option value="0">Tudo</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Operador</label>
+                    <select id="fOperador" onchange="renderDash()"><option value="">Todos</option></select>
+                </div>
             </div>
-
             <div class="dash-card">
                 <div class="dash-title">Total de Checklists</div>
                 <div id="totalChecks" class="stat-number">0</div>
             </div>
-
             <div class="dash-card">
-                <div class="dash-title">Status Geral (OK x NOK)</div>
-                <canvas id="chartPizza" height="200"></canvas>
+                <div class="dash-title">Status dos Itens (OK x NOK)</div>
+                <canvas id="chartPizza" height="220"></canvas>
             </div>
-
             <div class="dash-card">
-                <div class="dash-title">Ranking de Problemas</div>
+                <div class="dash-title">Ranking de Falhas</div>
                 <canvas id="chartBarras" height="250"></canvas>
             </div>
-
-            <button class="btn-nav" onclick="location.reload()">SAIR DO DASHBOARD</button>
+            <button class="btn-nav" onclick="location.reload()">VOLTAR</button>
         </div>
     </div>
 </div>
 
 <script>
-    // ⚠️ ATUALIZE SUA URL AQUI
-    const URL_API = "https://script.google.com/macros/s/AKfycby1TA5qgRDu7NAbgaSnIcK56lhZAVwVl9oELrc-WtBMZGzfOngA-emYxhWTnfMBdBO9/exec"; 
+    // ⚠️ COLOQUE SUA URL DO GOOGLE SCRIPT ABAIXO:
+    const URL_API = "https://script.google.com/macros/s/AKfycbxCQ5lGmU4Ut0QPjQ9cXesDX4G2XBIQg518Z0dYW-3Xc2ifejHPu5JlsywSQy3eMe-0/exec"; 
 
     let dMaquinas = [], dItens = [], dHistorico = [], chartP, chartB;
+    Chart.register(ChartDataLabels);
 
     window.onload = async () => {
         try {
@@ -101,27 +136,27 @@
             const data = await res.json();
             dMaquinas = data.maquinas; dItens = data.itens; dHistorico = data.historico || [];
             
-            const selTipo = document.getElementById('tipoMaquina');
+            const selT = document.getElementById('tipoMaquina');
             const tipos = [...new Set(dMaquinas.map(m => m.tipo_maquina))];
-            tipos.forEach(t => { if(t) selTipo.innerHTML += `<option value="${t}">${t}</option>`; });
+            tipos.forEach(t => { if(t) selT.innerHTML += `<option value="${t}">${t}</option>`; });
             
-            // Popula Filtros Dash
             const opSel = document.getElementById('fOperador');
-            const maqSel = document.getElementById('fCaminhao');
             [...new Set(dHistorico.map(h => h.operador))].forEach(op => { if(op) opSel.innerHTML += `<option value="${op}">${op}</option>`; });
-            [...new Set(dMaquinas.map(m => m.id_maquina))].forEach(id => { if(id) maqSel.innerHTML += `<option value="${id}">${id}</option>`; });
 
-            document.getElementById('statusLoad').style.display = 'none';
-            document.getElementById('formInicial').style.display = 'block';
-        } catch (e) { document.getElementById('statusLoad').innerText = "Erro ao carregar dados."; }
+            // FECHAR SPLASH SCREEN
+            const splash = document.getElementById('splash');
+            splash.style.opacity = '0';
+            setTimeout(() => { splash.style.visibility = 'hidden'; }, 600);
+
+        } catch (e) { alert("Erro de conexão. Verifique o Google Script."); }
     };
 
     function filtraIDs() {
-        const tipo = document.getElementById('tipoMaquina').value;
-        const selID = document.getElementById('idMaquina');
-        selID.innerHTML = '<option value="">Selecione...</option>';
-        dMaquinas.filter(m => m.tipo_maquina === tipo).forEach(m => {
-            selID.innerHTML += `<option value="${m.id_maquina}">${m.id_maquina}</option>`;
+        const t = document.getElementById('tipoMaquina').value;
+        const s = document.getElementById('idMaquina');
+        s.innerHTML = '<option value="">Selecione...</option>';
+        dMaquinas.filter(m => m.tipo_maquina === t).forEach(m => {
+            s.innerHTML += `<option value="${m.id_maquina}">${m.id_maquina}</option>`;
         });
     }
 
@@ -146,7 +181,7 @@
 
     async function salvar() {
         const btn = document.getElementById('btnSalvar'); if(btn.disabled) return;
-        btn.disabled = true; btn.innerText = "ENVIANDO...";
+        btn.disabled = true; btn.innerText = "SALVANDO...";
         const resps = Array.from(document.querySelectorAll('.res-check')).map(s => { return { item: s.dataset.name, status: s.value }; });
         const payload = {
             operador: document.getElementById('operador').value,
@@ -168,47 +203,35 @@
     }
 
     function renderDash() {
-        const opF = document.getElementById('fOperador').value;
-        const maqF = document.getElementById('fCaminhao').value;
-
-        // Filtro simples
+        const per = parseInt(document.getElementById('fPeriodo').value), opF = document.getElementById('fOperador').value, hoje = new Date();
         let filtrados = dHistorico.filter(d => {
-            return (opF === "" || d.operador === opF) && (maqF === "" || d.id_maquina == maqF);
+            const diff = (hoje - new Date(d.data)) / (1000*60*60*24);
+            return (per === 0 || diff <= per) && (opF === "" || d.operador === opF);
         });
 
-        // Contagem de checklists (Únicos por data e ID)
-        const unico = new Set(filtrados.map(f => f.data + f.id_maquina)).size;
-        document.getElementById('totalChecks').innerText = unico;
+        document.getElementById('totalChecks').innerText = new Set(filtrados.map(f => f.data + f.id_maquina)).size;
 
         let ok = 0, nok = 0, ranking = {};
         filtrados.forEach(f => {
             if(f.status === "OK") ok++;
-            else { 
-                nok++; 
-                ranking[f.item] = (ranking[f.item] || 0) + 1;
-            }
+            else { nok++; ranking[f.item] = (ranking[f.item] || 0) + 1; }
         });
 
-        // Gráfico Pizza
+        const labelCfg = { color: '#fff', font: { weight: 'bold' }, formatter: (v) => v > 0 ? v : '' };
+
         if(chartP) chartP.destroy();
-        const ctxP = document.getElementById('chartPizza').getContext('2d');
-        chartP = new Chart(ctxP, {
-            type: 'doughnut',
+        chartP = new Chart(document.getElementById('chartPizza'), {
+            type: 'pie',
             data: { labels: ['OK', 'NOK'], datasets: [{ data: [ok, nok], backgroundColor: ['#28a745', '#d32f2f'] }] },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            options: { plugins: { legend: { position: 'bottom' }, datalabels: labelCfg } }
         });
 
-        // Gráfico Barras
         const sorted = Object.entries(ranking).sort((a,b) => b[1] - a[1]).slice(0, 5);
         if(chartB) chartB.destroy();
-        const ctxB = document.getElementById('chartBarras').getContext('2d');
-        chartB = new Chart(ctxB, {
+        chartB = new Chart(document.getElementById('chartBarras'), {
             type: 'bar',
-            data: { 
-                labels: sorted.map(i => i[0]), 
-                datasets: [{ label: 'Qtd Falhas', data: sorted.map(i => i[1]), backgroundColor: '#005697' }] 
-            },
-            options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+            data: { labels: sorted.map(i => i[0]), datasets: [{ label: 'Falhas', data: sorted.map(i => i[1]), backgroundColor: '#005697' }] },
+            options: { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { ...labelCfg, anchor: 'end', align: 'start' } } }
         });
     }
 </script>
