@@ -5,159 +5,136 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checklist SV Logística</title>
     <style>
-        :root { --primary: #28a745; --dark: #212529; --gray: #f8f9fa; }
-        body { font-family: 'Segoe UI', sans-serif; background: #e9ecef; margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 450px; background: white; border-radius: 15px; shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        .header { background: var(--dark); color: white; padding: 20px; text-align: center; }
-        .header h1 { margin: 0; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; }
-        .content { padding: 20px; }
-        .card { display: none; }
-        .card.active { display: block; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; font-size: 0.9rem; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; }
-        .btn-next { background: var(--primary); color: white; }
-        .btn-send { background: #007bff; color: white; }
+        :root { --primary: #28a745; --dark: #1a1d20; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
+        .app { max-width: 500px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: var(--dark); color: white; padding: 15px; text-align: center; }
+        .p-20 { padding: 20px; }
+        .screen { display: none; }
+        .active { display: block; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; font-size: 14px; }
+        select, input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; }
+        .category-block { background: #f8f9fa; border-left: 4px solid var(--primary); padding: 10px; margin: 15px 0; border-radius: 4px; }
+        .category-title { font-weight: bold; color: #333; margin-bottom: 10px; text-transform: uppercase; font-size: 12px; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .item-row:last-child { border-bottom: none; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-main { background: var(--primary); color: white; margin-top: 10px; }
         .btn-back { background: #6c757d; color: white; margin-top: 10px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray); border-radius: 8px; margin-bottom: 10px; border: 1px solid #dee2e6; }
-        .item-row span { font-size: 0.95rem; color: #333; font-weight: 500; }
-        .status-select { width: auto; margin-bottom: 0; padding: 5px; }
-        .loading { text-align: center; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <h1>SV Logística</h1>
-    </div>
+<div class="app">
+    <div class="header"><h1>SV LOGÍSTICA</h1></div>
     
-    <div class="content">
-        <div id="tela1" class="card active">
-            <label>Nome do Operador</label>
-            <input type="text" id="operador" placeholder="Digite seu nome">
-
+    <div class="p-20">
+        <div id="tela1" class="screen active">
+            <label>Operador</label>
+            <input type="text" id="operador" placeholder="Seu nome">
+            
             <label>Tipo da Máquina</label>
-            <select id="tipoMaquina" onchange="atualizarIDs()">
-                <option value="">Carregando tipos...</option>
-            </select>
-
-            <label>ID Máquina</label>
-            <select id="idMaquina">
-                <option value="">Selecione o tipo primeiro</option>
-            </select>
-
-            <button class="btn-next" onclick="irParaChecklist()">PRÓXIMO: CHECKLIST</button>
+            <select id="tipoMaquina" onchange="filtraIDs()"><option value="">Carregando...</option></select>
+            
+            <label>ID da Máquina</label>
+            <select id="idMaquina"><option value="">Selecione o tipo...</option></select>
+            
+            <button class="btn-main" onclick="gerarChecklist()">INICIAR CHECKLIST</button>
         </div>
 
-        <div id="tela2" class="card">
-            <div id="infoCabecalho" style="background: #e7f3ff; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; color: #0056b3; font-weight: bold; text-align: center;"></div>
+        <div id="tela2" class="screen">
+            <div id="infoBanner" style="font-size: 12px; color: #666; margin-bottom: 15px;"></div>
+            <div id="checklistArea"></div>
             
-            <div id="containerItens"></div>
-
-            <label style="margin-top: 20px;">Observações</label>
-            <textarea id="observacao" placeholder="Alguma anormalidade?"></textarea>
-
-            <button id="btnEnviar" class="btn-send" onclick="enviarFinal()">FINALIZAR E SALVAR</button>
+            <label>Observações Gerais</label>
+            <textarea id="observacao" rows="3"></textarea>
+            
+            <button id="btnEnviar" class="btn-main" onclick="enviarDados()">SALVAR CHECKLIST</button>
             <button class="btn-back" onclick="location.reload()">VOLTAR</button>
         </div>
     </div>
 </div>
 
 <script>
-    // ⚠️ SUBSTITUA PELA SUA URL DO GOOGLE APPS SCRIPT
-    const URL_API = "COLE_AQUI_A_URL_DO_APPS_SCRIPT"; 
-
-    let dbGeral = [];
+    const URL_API = "SUA_URL_DO_APP_SCRIPT_AQUI"; 
+    let dMaquinas = [];
+    let dItens = [];
 
     window.onload = async () => {
-        try {
-            const res = await fetch(URL_API);
-            dbGeral = await res.json();
-            
-            const selectTipo = document.getElementById('tipoMaquina');
-            selectTipo.innerHTML = '<option value="">Selecione o tipo...</option>';
-            
-            const tiposUnicos = [...new Set(dbGeral.map(item => item["Tipo Máquina"]))];
-            tiposUnicos.forEach(tipo => {
-                if(tipo) {
-                    const opt = document.createElement('option');
-                    opt.value = tipo; opt.textContent = tipo;
-                    selectTipo.appendChild(opt);
-                }
-            });
-        } catch (e) {
-            alert("Erro ao conectar com a planilha. Verifique a URL do Script.");
-        }
+        const res = await fetch(URL_API);
+        const data = await res.json();
+        dMaquinas = data.maquinas;
+        dItens = data.itens;
+
+        const tipos = [...new Set(dMaquinas.map(m => m["Tipo Máquina"]))];
+        const selTipo = document.getElementById('tipoMaquina');
+        selTipo.innerHTML = '<option value="">Selecione o Tipo...</option>';
+        tipos.forEach(t => selTipo.innerHTML += `<option value="${t}">${t}</option>`);
     };
 
-    function atualizarIDs() {
-        const tipoEscolhido = document.getElementById('tipoMaquina').value;
-        const selectID = document.getElementById('idMaquina');
-        selectID.innerHTML = '<option value="">Selecione o ID...</option>';
-        
-        dbGeral.filter(item => item["Tipo Máquina"] === tipoEscolhido).forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m["ID Máquina"]; opt.textContent = m["ID Máquina"];
-            selectID.appendChild(opt);
-        });
+    function filtraIDs() {
+        const tipo = document.getElementById('tipoMaquina').value;
+        const selID = document.getElementById('idMaquina');
+        selID.innerHTML = '<option value="">Selecione o ID...</option>';
+        dMaquinas.filter(m => m["Tipo Máquina"] === tipo)
+                 .forEach(m => selID.innerHTML += `<option value="${m["ID Máquina"]}">${m["ID Máquina"]}</option>`);
     }
 
-    function irParaChecklist() {
-        const operador = document.getElementById('operador').value;
-        const idEscolhido = document.getElementById('idMaquina').value;
-        if(!operador || !idEscolhido) return alert("Preencha todos os campos!");
+    function gerarChecklist() {
+        const op = document.getElementById('operador').value;
+        const id = document.getElementById('idMaquina').value;
+        const tipo = document.getElementById('tipoMaquina').value;
+        if(!op || !id) return alert("Preencha Operador e ID!");
 
-        const maq = dbGeral.find(m => m["ID Máquina"] === idEscolhido);
+        const maq = dMaquinas.find(m => m["ID Máquina"] === id);
+        document.getElementById('infoBanner').innerText = `TIPO: ${tipo} | ID: ${id} | PLACA: ${maq.Placa}`;
+
+        const area = document.getElementById('checklistArea');
+        area.innerHTML = "";
         
+        // Filtra itens do tipo escolhido e agrupa por Categoria
+        const itensFiltrados = dItens.filter(i => i["Tipo Máquina"] === tipo);
+        const categorias = [...new Set(itensFiltrados.map(i => i.Categoria))];
+
+        categorias.forEach(cat => {
+            let html = `<div class="category-block"><div class="category-title">${cat}</div>`;
+            itensFiltrados.filter(i => i.Categoria === cat).forEach(item => {
+                html += `
+                <div class="item-row">
+                    <span>${item.Item}</span>
+                    <select class="res-item" data-name="${item.Item}" style="width: 80px; margin:0;">
+                        <option value="OK">OK</option>
+                        <option value="NOK">NOK</option>
+                    </select>
+                </div>`;
+            });
+            html += `</div>`;
+            area.innerHTML += html;
+        });
+
         document.getElementById('tela1').classList.remove('active');
         document.getElementById('tela2').classList.add('active');
-        
-        document.getElementById('infoCabecalho').innerText = `VEÍCULO: ${maq["ID Máquina"]} | PLACA: ${maq["Placa"]}`;
-        
-        const container = document.getElementById('containerItens');
-        container.innerHTML = "";
-        
-        const itens = maq["Itens Checklist"].split(",");
-        itens.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'item-row';
-            div.innerHTML = `<span>${item.trim()}</span>
-                <select class="respostas-checklist" data-nome="${item.trim()}">
-                    <option value="OK">OK</option>
-                    <option value="NOK">NOK</option>
-                </select>`;
-            container.appendChild(div);
-        });
     }
 
-    async function enviarFinal() {
+    async function enviarDados() {
         const btn = document.getElementById('btnEnviar');
-        btn.disabled = true; btn.innerText = "SALVANDO...";
+        btn.disabled = true; btn.innerText = "ENVIANDO...";
 
-        const respostas = Array.from(document.querySelectorAll('.respostas-checklist'))
-            .map(sel => `${sel.dataset.nome}: ${sel.value}`).join(" | ");
-
-        const idEscolhido = document.getElementById('idMaquina').value;
-        const maq = dbGeral.find(m => m["ID Máquina"] === idEscolhido);
+        const respostas = Array.from(document.querySelectorAll('.res-item'))
+            .map(s => `${s.dataset.name}: ${s.value}`).join(" | ");
 
         const payload = {
             operador: document.getElementById('operador').value,
-            tipoMaquina: maq["Tipo Máquina"],
-            idMaquina: maq["ID Máquina"],
-            placa: maq["Placa"],
+            tipoMaquina: document.getElementById('tipoMaquina').value,
+            idMaquina: document.getElementById('idMaquina').value,
+            placa: dMaquinas.find(m => m["ID Máquina"] === document.getElementById('idMaquina').value).Placa,
             respostas: respostas,
             observacao: document.getElementById('observacao').value
         };
 
-        try {
-            await fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("Checklist Salvo na Planilha!");
-            location.reload();
-        } catch (err) {
-            alert("Erro ao salvar.");
-            btn.disabled = false; btn.innerText = "FINALIZAR E SALVAR";
-        }
+        await fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        alert("Checklist Salvo!");
+        location.reload();
     }
 </script>
 </body>
