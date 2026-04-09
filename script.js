@@ -1,4 +1,4 @@
-const URL_API = "https://script.google.com/macros/s/AKfycbw6RL6Nnf4i38MuvJyRgVJUlXXLeL2-RwHk1Jem1nslkC1LJFcccM44WO6ZARbeFfD5/exec";
+const URL_API = "https://script.google.com/macros/s/AKfycbzAQaRcltLEa274Da3gN0tX3tI2WWWQ46mJdXtFJ2brk_GGqvuStr_7eXmfTI5g-l-o/exec";
 let dbGeral = [];
 
 window.onload = async () => {
