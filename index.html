@@ -161,22 +161,48 @@
     }
 
     function irParaChecklist() {
-        const op = document.getElementById('operador').value, id = document.getElementById('idMaquina').value, t = document.getElementById('tipoMaquina').value;
-        if(!op || !id) return alert("Preencha Operador e Máquina!");
-        const maq = dMaquinas.find(m => m.id_maquina === id);
-        document.getElementById('banner').innerText = `ID: ${id} | PLACA: ${maq.placa || 'N/A'}`;
-        const area = document.getElementById('checklistArea'); area.innerHTML = "";
-        const itensF = dItens.filter(i => i.tipo_maquina === t);
-        const cats = [...new Set(itensF.map(i => i.categoria))];
-        cats.forEach(c => {
-            let h = `<div class="category-block"><div class="category-title">${c}</div>`;
-            itensF.filter(i => i.categoria === c).forEach(it => {
-                h += `<div class="item-row"><span>${it.item}</span><select class="res-check" data-name="${it.item}"><option value="OK">OK</option><option value="NOK">NOK</option></select></div>`;
-            });
-            area.innerHTML += h + `</div>`;
+    const op = document.getElementById('operador').value;
+    const id = document.getElementById('idMaquina').value;
+    const tipoRaw = document.getElementById('tipoMaquina').value;
+    
+    if(!op || !id) return alert("Preencha Operador e Máquina!");
+
+    // Normalização extrema: tira espaços e deixa tudo em minúsculo para comparar
+    const tipoBusca = tipoRaw.trim().toLowerCase();
+
+    const itensF = dItens.filter(i => {
+        if (!i.tipo_maquina) return false;
+        return i.tipo_maquina.toString().trim().toLowerCase() === tipoBusca;
+    });
+
+    // Se ainda assim não encontrar, vamos ver o que o banco tem
+    if(itensF.length === 0) {
+        console.log("Tipo buscado:", tipoBusca);
+        console.log("Tipos disponíveis no banco:", dItens.map(i => i.tipo_maquina));
+        
+        alert("ERRO DE VÍNCULO:\nO tipo '" + tipoRaw + "' não possui itens cadastrados na aba 'Itens Checklist'.\n\nVerifique se o nome na aba de Itens é EXATAMENTE igual ao da aba Maquinas.");
+        return;
+    }
+
+    // Se achou, prossegue normalmente
+    const maq = dMaquinas.find(m => m.id_maquina === id);
+    document.getElementById('banner').innerText = `ID: ${id} | PLACA: ${maq.placa || 'N/A'}`;
+    const area = document.getElementById('checklistArea'); 
+    area.innerHTML = "";
+    
+    const cats = [...new Set(itensF.map(i => i.categoria))];
+    cats.forEach(c => {
+        let h = `<div class="category-block"><div class="category-title">${c}</div>`;
+        itensF.filter(i => i.categoria === c).forEach(it => {
+            h += `<div class="item-row"><span>${it.item}</span><select class="res-check" data-name="${it.item}"><option value="OK">OK</option><option value="NOK">NOK</option></select></div>`;
         });
-        document.getElementById('tela1').classList.remove('active'); document.getElementById('tela2').classList.add('active');
-        window.scrollTo(0,0);
+        area.innerHTML += h + `</div>`;
+    });
+    
+    document.getElementById('tela1').classList.remove('active'); 
+    document.getElementById('tela2').classList.add('active');
+    window.scrollTo(0,0);
+}
     }
 
     async function salvar() {
