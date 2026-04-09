@@ -1,45 +1,28 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist SV Logística</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <img src="logo.png" alt="Logo SV" class="logo">
-            <h1>Checklist de Frota</h1>
-        </header>
+<div id="tela1" class="card">
+    <label>Operador</label>
+    <input type="text" id="operador" placeholder="Seu nome">
 
-        <form id="formChecklist">
-            <div class="card">
-                <label>Operador</label>
-                <input type="text" id="operador" required placeholder="Nome completo">
-                
-                <label>Veículo / Máquina</label>
-                <select id="maquina" required>
-                    <option value="">Carregando máquinas...</option>
-                </select>
+    <label>Tipo da Máquina</label>
+    <select id="tipoMaquina" onchange="atualizarIDs()">
+        <option value="">Selecione o Tipo...</option>
+    </select>
 
-                <label>Placa</label>
-                <input type="text" id="placa" readonly class="input-readonly">
-            </div>
+    <label>ID Máquina</label>
+    <select id="idMaquina">
+        <option value="">Aguardando tipo...</option>
+    </select>
 
-            <div id="itensChecklist" class="card">
-                <h3>Itens de Inspeção</h3>
-                </div>
+    <button onclick="irParaChecklist()" style="margin-top:10px; background:#007bff">Próximo: Itens do Checklist</button>
+</div>
 
-            <div class="card">
-                <label>Observações</label>
-                <textarea id="observacao" placeholder="Descreva qualquer irregularidade..."></textarea>
-            </div>
-
-            <button type="submit" id="btnEnviar">Finalizar e Salvar na Planilha</button>
-        </form>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+<div id="tela2" class="card" style="display:none">
+    <h3 id="infoCabecalho"></h3>
+    <div id="containerItens"></div>
+    
+    <label>Observações</label>
+    <textarea id="observacao"></textarea>
+    
+    <button id="btnEnviar" onclick="enviarFinal()">Finalizar Checklist</button>
+    <button onclick="location.reload()" style="background:#666; margin-top:5px">Voltar</button>
+</div>
      
